@@ -6,6 +6,9 @@
 
 **作者**：四川金沐志德科技有限公司
 
+> 📖 **新手请先看 [使用手册](USER_GUIDE.md)**——含两种使用场景（AI 助手对话 / 命令行）、
+> 数据准备指南、填表说明、常见问题 FAQ。
+
 ## 快速开始
 
 ### 方式一：单工作簿（最省事）
@@ -103,6 +106,7 @@ python scripts/cash_flow_generator.py --bs 报表.xlsx \
 现金流量表SKill/
 ├── SKILL.md                          # Skill 主文档（含触发词/使用说明）
 ├── README.md                         # 本文件（中文）
+├── USER_GUIDE.md                     # 使用手册（面向最终用户，含 FAQ）
 ├── README.en.md                      # 英文说明
 ├── LICENSE                           # MIT 许可
 ├── .gitignore                        # 排除含公司数据的原始模板
