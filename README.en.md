@@ -6,6 +6,8 @@ follow the Chinese template `编制现金流量表2024.xls` and its compilation 
 **direct method for the main statement, indirect method for the supplementary
 schedule**, classifying all cash flows into Operating / Investing / Financing activities.
 
+**Author**: Sichuan Jinmu Zhide Technology Co., Ltd.（四川金沐志德科技有限公司）
+
 Works out of the box with statements of companies reporting under the **new CAS
 (2017+)** as well as legacy formats — accounts are auto-mapped (`合同负债→预收款项`,
 `应收款项融资→应收票据`, `开发成本→存货`, `拆入资金→短期借款`, `消耗性生物资产→存货`,
