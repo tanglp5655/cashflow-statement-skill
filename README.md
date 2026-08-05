@@ -66,6 +66,18 @@ python scripts/cash_flow_generator.py --bs bs.xlsx --pl pl.xlsx --extra extra.xl
   --bs-prior 上年资产负债表.xlsx --pl-prior 上年利润表.xlsx
 ```
 
+### 英文输出
+
+加 `--lang en` 即可输出全英文报表（项目名/表头/标题/附注标签均翻译）：
+
+```bash
+python scripts/cash_flow_generator.py --bs 报表.xlsx --out output --fmt all --lang en
+# 输出: Cash_Flow_Statement.md / .xlsx / .json
+```
+
+> 注意：英文模式仅翻译输出层文本，报表格式仍为中国《企业会计制度》口径，
+> 尚未适配 IFRS/US GAAP 的行次结构。
+
 ## 输出
 
 | 文件 | 内容 |

@@ -106,6 +106,126 @@ CASH_ITEMS = [
     (83, "现金及现金等价物净增加额"),
 ]
 
+# ============ 国际化：英文翻译表（A 档：仅输出层翻译，格式不变）============
+# 用于 --lang en，将主表/补充资料/现金等价物/校验/附注的显示文本翻译为英文
+# 注意：计算逻辑/科目键名不变，只改输出给人看的文本
+I18N_EN = {
+    # 主表标题
+    "现金流量表": "Cash Flow Statement",
+    "一、现金流量表（主表）": "I. Cash Flow Statement (Main)",
+    "二、补充资料（间接法：净利润调节为经营活动现金流量）":
+        "II. Supplementary Schedule (Indirect Method: Net Profit to Operating Cash Flow)",
+    "三、现金及现金等价物": "III. Cash and Cash Equivalents",
+    "四、负数调整说明（编制说明第四条）":
+        "IV. Negative-Value Adjustments (Compilation Guide Art. 4)",
+    "五、勾稽关系校验": "V. Reconciliation Checks",
+    "六、编制附注（主要计算过程）": "VI. Notes to Preparation (Key Calculation Steps)",
+    # 表头
+    "行次": "Line",
+    "项目": "Item",
+    "本期金额": "Current Period",
+    "上期金额": "Prior Period",
+    # 经营活动
+    "一、经营活动产生的现金流量：": "I. Cash flows from operating activities:",
+    "  销售商品、提供劳务收到的现金":
+        "  Cash received from sales of goods and rendering of services",
+    "  收到的税费返还": "  Tax refunds and levies received",
+    "  收到的其他与经营活动有关的现金":
+        "  Other cash received relating to operating activities",
+    "  现金流入小计": "  Subtotal of cash inflows",
+    "  购买商品、接受劳务支付的现金": "  Cash paid for goods and services",
+    "  支付给职工以及为职工支付的现金": "  Cash paid to and on behalf of employees",
+    "  支付的各项税费": "  Taxes and levies paid",
+    "  支付的其他与经营活动有关的现金":
+        "  Other cash paid relating to operating activities",
+    "  现金流出小计": "  Subtotal of cash outflows",
+    "  经营活动产生的现金流量净额": "  Net cash flow from operating activities",
+    # 投资活动
+    "二、投资活动产生的现金流量：": "II. Cash flows from investing activities:",
+    "  收回投资所收到的现金": "  Cash received from disposal of investments",
+    "  取得投资收益所收到的现金": "  Cash received from investment income",
+    "  处置固定资产、无形资产和其他长期资产而收到的现金净额":
+        "  Net cash from disposal of fixed assets, intangible assets and other long-term assets",
+    "  收到的其他与投资活动有关的现金":
+        "  Other cash received relating to investing activities",
+    "  购建固定资产、无形资产和其他长期资产所支付的现金":
+        "  Cash paid for acquisition of fixed assets, intangible assets and other long-term assets",
+    "  投资所支付的现金": "  Cash paid for investments",
+    "  支付的其他与投资活动有关的现金":
+        "  Other cash paid relating to investing activities",
+    "  投资活动产生的现金流量净额": "  Net cash flow from investing activities",
+    # 筹资活动
+    "三、筹资活动产生的现金流量：": "III. Cash flows from financing activities:",
+    "  吸收投资所收到的现金": "  Cash received from absorption of investments",
+    "  借款所收到的现金": "  Cash received from borrowings",
+    "  收到的其他与筹资活动有关的现金":
+        "  Other cash received relating to financing activities",
+    "  偿还债务所支付的现金": "  Cash repayments of amounts borrowed",
+    "  分配股利、利润或偿付利息所支付的现金":
+        "  Cash paid for distribution of dividends, profits or interest",
+    "  支付的其他与筹资活动有关的现金":
+        "  Other cash paid relating to financing activities",
+    "  筹资活动产生的现金流量净额": "  Net cash flow from financing activities",
+    # 汇率/净增加
+    "四、汇率变动对现金的影响": "IV. Effect of foreign exchange rate changes on cash",
+    "五、现金及现金等价物净增加额": "V. Net increase in cash and cash equivalents",
+    # 现金及现金等价物明细
+    "现金的期末余额": "Cash at end of period",
+    "减：现金的期初余额": "Less: Cash at beginning of period",
+    "加：现金等价物的期末余额": "Add: Cash equivalents at end of period",
+    "减：现金等价物的期初余额": "Less: Cash equivalents at beginning of period",
+    "现金及现金等价物净增加额": "Net increase in cash and cash equivalents",
+    # 补充资料（间接法）
+    "  净利润": "  Net profit",
+    "  加：计提的资产减值准备": "  Add: Provision for impairment losses of assets",
+    "        固定资产折旧": "        Depreciation of fixed assets",
+    "        无形资产摊销": "        Amortization of intangible assets",
+    "        长期待摊费用摊销": "        Amortization of long-term deferred expenses",
+    "        待摊费用减少（减：增加）": "        Decrease in prepaid expenses (less: increase)",
+    "        预提费用增加（减：减少）": "        Increase in accrued expenses (less: decrease)",
+    "        处置固定资产、无形资产和其他长期资产的损失（减：收益）":
+        "        Loss on disposal of fixed assets, intangible assets and other long-term assets (less: gain)",
+    "        固定资产报废损失": "        Loss on scrapping of fixed assets",
+    "        财务费用": "        Financial expenses",
+    "        投资损失（减：收益）": "        Investment loss (less: gain)",
+    "        递延税款贷项（减：借项）": "        Deferred tax credits (less: debits)",
+    "        存货的减少（减：增加）": "        Decrease in inventories (less: increase)",
+    "        经营性应收项目的减少（减：增加）":
+        "        Decrease in operating receivables (less: increase)",
+    "        经营性应付项目的增加（减：减少）":
+        "        Increase in operating payables (less: decrease)",
+    "        其他": "        Others",
+    # 附注说明
+    "（依据资产负债表、利润及利润分配表及表外数据，按《现金流量表编制说明》口径自动生成）":
+        "(Auto-generated from Balance Sheet, Income Statement and off-sheet data, "
+        "following the Cash Flow Statement Compilation Guide)",
+    "说明：本表依据资产负债表与损益表编制，反映现金流量大致状况。":
+        "Note: This statement is compiled from the balance sheet and income statement "
+        "and reflects the general cash flow position. ",
+    "表外数据中的税率、坏账计提比例等须按公司实际情况核实；":
+        "Tax rates and bad-debt provision ratios in the off-sheet data must be verified "
+        "against the company's actuals. ",
+    "涉及明细账簿的项目（如大额处置损益、非货币交易等）建议进一步核对。":
+        "Items involving subsidiary ledgers (e.g. significant disposal gains/losses, "
+        "non-monetary transactions) should be cross-checked.",
+    # Excel 专用标签
+    "补充资料": "Supplementary Schedule",
+    "补充资料（间接法）": "Supplementary Schedule (Indirect Method)",
+    "编制附注与校验": "Notes and Reconciliation",
+    "编制附注与勾稽校验": "Notes and Reconciliation Checks",
+    "【勾稽关系校验】": "[Reconciliation Checks]",
+    "【负数调整说明】": "[Negative-Value Adjustments]",
+    "【主要计算过程】": "[Key Calculation Steps]",
+}
+
+
+def tr(text, lang="zh"):
+    """翻译显示文本（仅输出层，不影响计算）"""
+    if lang == "en" and text in I18N_EN:
+        return I18N_EN[text]
+    return text
+
+
 # 模板固定税率/比例（编制说明：须按公司实际情况修改）
 DEFAULT_PARAMS = {
     "sale_vat_rate": 0.13,       # 销售含税换算：营业收入 × (1+13%)
@@ -1250,7 +1370,7 @@ def fmt(v, nd=2):
         return "0.00"
 
 
-def build_main_rows(result, prior=None):
+def build_main_rows(result, prior=None, lang="zh"):
     """构建主表输出行：[行次, 项目, 本期金额, 上期金额]"""
     m = result["main"]
     key_map = {
@@ -1331,7 +1451,7 @@ def build_main_rows(result, prior=None):
             prior_v = prior["main"].get(key)
         rows.append({
             "行次": lineno,
-            "项目": label,
+            "项目": tr(label, lang),
             "本期金额": fmt(this_v) if this_v is not None else "",
             "上期金额": fmt(prior_v) if prior_v is not None else "",
             "kind": kind,
@@ -1339,7 +1459,7 @@ def build_main_rows(result, prior=None):
     return rows
 
 
-def build_supp_rows(result, prior=None):
+def build_supp_rows(result, prior=None, lang="zh"):
     """构建补充资料输出行"""
     s = result["supp"]
     # (项目键, 显示名, 行次)
@@ -1370,7 +1490,7 @@ def build_supp_rows(result, prior=None):
             prior_v = prior["supp"].get(name)
         rows.append({
             "行次": lineno,
-            "项目": disp,
+            "项目": tr(disp, lang),
             "本期金额": fmt(this_v) if this_v is not None else "",
             "上期金额": fmt(prior_v) if prior_v is not None else "",
             "kind": "supp",
@@ -1378,33 +1498,34 @@ def build_supp_rows(result, prior=None):
     return rows
 
 
-def to_markdown(result, title="现金流量表", prior=None):
+def to_markdown(result, title="现金流量表", prior=None, lang="zh"):
     """生成 Markdown 报表"""
+    t = lambda s: tr(s, lang)
     lines = []
-    lines.append(f"# {title}")
+    lines.append(f"# {t(title)}")
     lines.append("")
-    lines.append("（依据资产负债表、利润及利润分配表及表外数据，按《现金流量表编制说明》口径自动生成）")
+    lines.append(t("（依据资产负债表、利润及利润分配表及表外数据，按《现金流量表编制说明》口径自动生成）"))
     lines.append("")
-    lines.append("## 一、现金流量表（主表）")
+    lines.append(f"## {t('一、现金流量表（主表）')}")
     lines.append("")
-    lines.append("| 行次 | 项目 | 本期金额 | 上期金额 |")
+    lines.append(f"| {t('行次')} | {t('项目')} | {t('本期金额')} | {t('上期金额')} |")
     lines.append("| ---: | --- | ---: | ---: |")
-    for r in build_main_rows(result, prior):
+    for r in build_main_rows(result, prior, lang):
         if r["kind"] == "header":
             lines.append(f"| {r['行次']} | **{r['项目']}** |  |  |")
         else:
             lines.append(f"| {r['行次']} | {r['项目']} | {r['本期金额']} | {r['上期金额']} |")
     lines.append("")
-    lines.append("## 二、补充资料（间接法：净利润调节为经营活动现金流量）")
+    lines.append(f"## {t('二、补充资料（间接法：净利润调节为经营活动现金流量）')}")
     lines.append("")
-    lines.append("| 行次 | 项目 | 本期金额 | 上期金额 |")
+    lines.append(f"| {t('行次')} | {t('项目')} | {t('本期金额')} | {t('上期金额')} |")
     lines.append("| ---: | --- | ---: | ---: |")
-    for r in build_supp_rows(result, prior):
+    for r in build_supp_rows(result, prior, lang):
         lines.append(f"| {r['行次']} | {r['项目']} | {r['本期金额']} | {r['上期金额']} |")
     lines.append("")
-    lines.append("## 三、现金及现金等价物")
+    lines.append(f"## {t('三、现金及现金等价物')}")
     lines.append("")
-    lines.append("| 行次 | 项目 | 本期金额 | 上期金额 |")
+    lines.append(f"| {t('行次')} | {t('项目')} | {t('本期金额')} | {t('上期金额')} |")
     lines.append("| ---: | --- | ---: | ---: |")
     c = result["cash"]
     cash_key_map = {
@@ -1413,43 +1534,44 @@ def to_markdown(result, title="现金流量表", prior=None):
     }
     for ln, name in CASH_ITEMS:
         key = cash_key_map[ln]
-        lines.append(f"| {ln} | {name} | {fmt(c.get(key, 0))} |  |")
+        lines.append(f"| {ln} | {t(name)} | {fmt(c.get(key, 0))} |  |")
     lines.append("")
     # 负数调整
     if result["adjustments"]:
-        lines.append("## 四、负数调整说明（编制说明第四条）")
+        lines.append(f"## {t('四、负数调整说明（编制说明第四条）')}")
         lines.append("")
         for a in result["adjustments"]:
             lines.append(f"- {a}")
         lines.append("")
     # 校验
-    lines.append("## 五、勾稽关系校验")
+    lines.append(f"## {t('五、勾稽关系校验')}")
     lines.append("")
     for v in result["validations"]:
         lines.append(f"- {'✓' if v['ok'] else '✗'} **{v['name']}**：{v['detail']}")
     lines.append("")
     # 附注
-    lines.append("## 六、编制附注（主要计算过程）")
+    lines.append(f"## {t('六、编制附注（主要计算过程）')}")
     lines.append("")
     for n in result["notes"]:
         lines.append(f"- {n}")
     lines.append("")
-    lines.append("> 说明：本表依据资产负债表与损益表编制，反映现金流量大致状况。"
-                 "表外数据中的税率、坏账计提比例等须按公司实际情况核实；"
-                 "涉及明细账簿的项目（如大额处置损益、非货币交易等）建议进一步核对。")
+    lines.append(f"> {t('说明：本表依据资产负债表与损益表编制，反映现金流量大致状况。')}"
+                 f"{t('表外数据中的税率、坏账计提比例等须按公司实际情况核实；')}"
+                 f"{t('涉及明细账簿的项目（如大额处置损益、非货币交易等）建议进一步核对。')}")
     return "\n".join(lines)
 
 
-def to_excel(result, out_path, title="现金流量表"):
+def to_excel(result, out_path, title="现金流量表", lang="zh"):
     """输出规范 Excel 报表（主表+补充资料+附注）"""
     from openpyxl import Workbook
     from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
     from openpyxl.utils import get_column_letter
+    t = lambda s: tr(s, lang)
 
     wb = Workbook()
     # ---- 主表 ----
     ws = wb.active
-    ws.title = "现金流量表"
+    ws.title = t("现金流量表")
     thin = Side(style="thin")
     border = Border(left=thin, right=thin, top=thin, bottom=thin)
     head_font = Font(name="宋体", size=14, bold=True)
@@ -1460,15 +1582,18 @@ def to_excel(result, out_path, title="现金流量表"):
     net_fill = PatternFill("solid", fgColor="FCE4D6")
 
     ws.merge_cells("A1:D1")
-    ws["A1"] = title
+    ws["A1"] = t(title)
     ws["A1"].font = head_font
     ws["A1"].alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[1].height = 28
     ws.merge_cells("A2:D2")
-    ws["A2"] = "编制单位：＿＿＿＿＿＿　　年度：＿＿＿＿　　单位：元"
+    unit_label = ("编制单位：＿＿＿＿＿＿　　年度：＿＿＿＿　　单位：元"
+                  if lang == "zh"
+                  else "Entity: ____    Period: ____    Currency: CNY")
+    ws["A2"] = unit_label
     ws["A2"].font = normal_font
 
-    hdr = ["行次", "项目", "本期金额", "上期金额"]
+    hdr = [t("行次"), t("项目"), t("本期金额"), t("上期金额")]
     for ci, h in enumerate(hdr, 1):
         cell = ws.cell(row=3, column=ci, value=h)
         cell.font = sub_font
@@ -1477,7 +1602,7 @@ def to_excel(result, out_path, title="现金流量表"):
         cell.alignment = Alignment(horizontal="center", vertical="center")
 
     r = 4
-    for row in build_main_rows(result):
+    for row in build_main_rows(result, None, lang):
         for ci, val in enumerate([row["行次"], row["项目"], row["本期金额"], row["上期金额"]], 1):
             cell = ws.cell(row=r, column=ci, value=val)
             cell.font = normal_font
@@ -1503,9 +1628,9 @@ def to_excel(result, out_path, title="现金流量表"):
         ws.column_dimensions[get_column_letter(ci)].width = w
 
     # ---- 补充资料 ----
-    ws2 = wb.create_sheet("补充资料")
+    ws2 = wb.create_sheet(t("补充资料"))
     ws2.merge_cells("A1:D1")
-    ws2["A1"] = "补充资料（间接法）"
+    ws2["A1"] = t("补充资料（间接法）")
     ws2["A1"].font = head_font
     ws2["A1"].alignment = Alignment(horizontal="center")
     for ci, h in enumerate(hdr, 1):
@@ -1515,7 +1640,7 @@ def to_excel(result, out_path, title="现金流量表"):
         cell.border = border
         cell.alignment = Alignment(horizontal="center")
     r = 4
-    for row in build_supp_rows(result):
+    for row in build_supp_rows(result, None, lang):
         for ci, val in enumerate([row["行次"], row["项目"], row["本期金额"], row["上期金额"]], 1):
             cell = ws2.cell(row=r, column=ci, value=val)
             cell.font = normal_font
@@ -1526,25 +1651,25 @@ def to_excel(result, out_path, title="现金流量表"):
         ws2.column_dimensions[get_column_letter(ci)].width = w
 
     # ---- 编制附注 ----
-    ws3 = wb.create_sheet("编制附注与校验")
+    ws3 = wb.create_sheet(t("编制附注与校验"))
     ws3.merge_cells("A1:F1")
-    ws3["A1"] = "编制附注与勾稽校验"
+    ws3["A1"] = t("编制附注与勾稽校验")
     ws3["A1"].font = head_font
     r = 3
-    ws3.cell(row=r, column=1, value="【勾稽关系校验】").font = sub_font
+    ws3.cell(row=r, column=1, value=t("【勾稽关系校验】")).font = sub_font
     r += 1
     for v in result["validations"]:
         ws3.cell(row=r, column=1, value=f"{'✓' if v['ok'] else '✗'} {v['name']}：{v['detail']}")
         r += 1
     if result["adjustments"]:
         r += 1
-        ws3.cell(row=r, column=1, value="【负数调整说明】").font = sub_font
+        ws3.cell(row=r, column=1, value=t("【负数调整说明】")).font = sub_font
         r += 1
         for a in result["adjustments"]:
             ws3.cell(row=r, column=1, value=f"- {a}")
             r += 1
     r += 1
-    ws3.cell(row=r, column=1, value="【主要计算过程】").font = sub_font
+    ws3.cell(row=r, column=1, value=t("【主要计算过程】")).font = sub_font
     r += 1
     for n in result["notes"]:
         ws3.cell(row=r, column=1, value=f"- {n}")
@@ -1604,6 +1729,8 @@ def main():
     ap.add_argument("--pl-prior", help="上年利润表")
     ap.add_argument("--out", default=".", help="输出目录")
     ap.add_argument("--fmt", choices=["markdown", "excel", "json", "all"], default="all")
+    ap.add_argument("--lang", choices=["zh", "en"], default="zh",
+                    help="输出语言：zh（中文，默认）/ en（英文）")
     ap.add_argument("--json-params", help='覆盖参数 JSON，如 {"sale_vat_rate":0.13}')
     args = ap.parse_args()
 
@@ -1615,14 +1742,16 @@ def main():
                         args.bs_prior, args.pl_prior, params)
 
     os.makedirs(args.out, exist_ok=True)
-    base = os.path.join(args.out, "现金流量表")
+    title = "现金流量表" if args.lang == "zh" else "Cash Flow Statement"
+    base_name = "现金流量表" if args.lang == "zh" else "Cash_Flow_Statement"
+    base = os.path.join(args.out, base_name)
     if args.fmt in ("markdown", "all"):
-        md = to_markdown(result, prior=prior)
+        md = to_markdown(result, title=title, prior=prior, lang=args.lang)
         print(md)
         with open(base + ".md", "w", encoding="utf-8") as f:
             f.write(md)
     if args.fmt in ("excel", "all"):
-        to_excel(result, base + ".xlsx")
+        to_excel(result, base + ".xlsx", title=title, lang=args.lang)
     if args.fmt in ("json", "all"):
         with open(base + ".json", "w", encoding="utf-8") as f:
             json.dump({"result": result, "prior": prior}, f, ensure_ascii=False,

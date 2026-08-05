@@ -286,6 +286,19 @@ python scripts/cash_flow_generator.py \
 可以。`现金流量表.xlsx` 是规范格式（含行次、本期/上期金额、补充资料、附注）。
 但请注意：本表反映现金流量**大致基本状况**（编制说明原文），正式申报以企业现金流量表附注为准。
 
+### Q8：能输出英文版吗？
+
+可以。加 `--lang en` 即可输出全英文报表：
+
+```bash
+python scripts/cash_flow_generator.py --bs 报表.xlsx --out output --fmt all --lang en
+```
+
+或在对话里告诉 AI 助手："用英文输出"。
+
+> 注意：英文模式仅翻译输出层文本（项目名/表头/标题/附注），报表格式仍为中国
+> 《企业会计制度》口径，尚未适配 IFRS/US GAAP 的行次结构。
+
 ---
 
 ## 精度说明
