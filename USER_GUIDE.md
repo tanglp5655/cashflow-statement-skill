@@ -61,7 +61,8 @@ AI：（解释原因，建议补填表外数据收集表）
 
 ```bash
 # 需要 Python 3.8+
-pip install openpyxl xlrd
+pip install openpyxl xlrd           # Excel 解析
+pip install python-docx             # Word 输出（可选，给银行/税务用）
 ```
 
 ### 最简用法（单工作簿）

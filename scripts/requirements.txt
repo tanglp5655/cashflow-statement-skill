@@ -1,3 +1,4 @@
 # 现金流量表编制引擎依赖（仅解析 Excel 时需要；CSV/粘贴表格无需安装）
 openpyxl>=3.0
 xlrd>=2.0
+python-docx>=0.8      # 仅 Word 输出（--fmt word）需要

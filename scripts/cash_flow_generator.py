@@ -1678,6 +1678,195 @@ def to_excel(result, out_path, title="现金流量表", lang="zh"):
     wb.save(out_path)
 
 
+def to_word(result, out_path, title="现金流量表", lang="zh"):
+    """输出规范 Word 报表（年报格式，适合银行/税务/老板）"""
+    from docx import Document
+    from docx.shared import Pt, Cm, RGBColor
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.enum.table import WD_TABLE_ALIGNMENT
+    from docx.oxml.ns import qn
+    t = lambda s: tr(s, lang)
+
+    doc = Document()
+    # 默认字体（中英文兼容）
+    style = doc.styles["Normal"]
+    style.font.name = "宋体"
+    style.font.size = Pt(10.5)
+    style.element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
+
+    def set_cell(cell, text, bold=False, align="left", fill=None, size=10):
+        cell.text = ""
+        p = cell.paragraphs[0]
+        p.alignment = {"left": WD_ALIGN_PARAGRAPH.LEFT,
+                       "center": WD_ALIGN_PARAGRAPH.CENTER,
+                       "right": WD_ALIGN_PARAGRAPH.RIGHT}[align]
+        run = p.add_run(str(text) if text is not None else "")
+        run.font.size = Pt(size)
+        run.font.name = "宋体"
+        run.font.bold = bold
+        run.element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
+        if fill:
+            from docx.oxml import OxmlElement
+            tc_pr = cell._tc.get_or_add_tcPr()
+            shd = OxmlElement("w:shd")
+            shd.set(qn("w:fill"), fill)
+            tc_pr.append(shd)
+
+    def add_table(rows_data, col_widths=None):
+        """添加规范表格：rows_data[0]=表头，后续为数据行"""
+        if not rows_data:
+            return None
+        ncols = len(rows_data[0])
+        tbl = doc.add_table(rows=len(rows_data), cols=ncols)
+        tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+        tbl.style = "Table Grid"
+        # 表头
+        for ci, val in enumerate(rows_data[0]):
+            set_cell(tbl.cell(0, ci), val, bold=True, align="center",
+                     fill="BDD7EE", size=10)
+        # 数据行
+        for ri, row in enumerate(rows_data[1:], 1):
+            for ci, val in enumerate(row):
+                align = "center" if ci == 0 else ("left" if ci == 1 else "right")
+                set_cell(tbl.cell(ri, ci), val, align=align, size=10)
+        # 列宽
+        if col_widths:
+            for ci, w in enumerate(col_widths):
+                for ri in range(len(rows_data)):
+                    tbl.cell(ri, ci).width = Cm(w)
+        return tbl
+
+    # ============ 标题 ============
+    h = doc.add_heading("", level=0)
+    h.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = h.add_run(t(title))
+    run.font.name = "宋体"
+    run.font.size = Pt(18)
+    run.font.bold = True
+    run.element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
+
+    # 副标题（编制单位/年度/单位）
+    sub = doc.add_paragraph()
+    sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    sub_label = ("编制单位：＿＿＿＿＿＿　　年度：＿＿＿＿　　单位：元"
+                 if lang == "zh"
+                 else "Entity: ____    Period: ____    Currency: CNY")
+    sr = sub.add_run(sub_label)
+    sr.font.size = Pt(10)
+    sr.font.name = "宋体"
+    sr.element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
+    doc.add_paragraph("")
+
+    # ============ 主表 ============
+    h1 = doc.add_heading(t("一、现金流量表（主表）"), level=1)
+    for run in h1.runs:
+        run.font.name = "宋体"
+        run.font.size = Pt(13)
+        run.element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
+
+    main_rows = [[t("行次"), t("项目"), t("本期金额"), t("上期金额")]]
+    for r in build_main_rows(result, None, lang):
+        if r["kind"] == "header":
+            main_rows.append([r["行次"], r["项目"], "", ""])
+        else:
+            main_rows.append([r["行次"], r["项目"], r["本期金额"], r["上期金额"]])
+    add_table(main_rows, col_widths=[1.2, 9, 3, 3])
+
+    doc.add_paragraph("")
+
+    # ============ 补充资料 ============
+    h2 = doc.add_heading(t("二、补充资料（间接法：净利润调节为经营活动现金流量）"), level=1)
+    for run in h2.runs:
+        run.font.name = "宋体"
+        run.font.size = Pt(13)
+        run.element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
+
+    supp_rows = [[t("行次"), t("项目"), t("本期金额"), t("上期金额")]]
+    for r in build_supp_rows(result, None, lang):
+        supp_rows.append([r["行次"], r["项目"], r["本期金额"], r["上期金额"]])
+    add_table(supp_rows, col_widths=[1.2, 9, 3, 3])
+
+    doc.add_paragraph("")
+
+    # ============ 现金及现金等价物 ============
+    h3 = doc.add_heading(t("三、现金及现金等价物"), level=1)
+    for run in h3.runs:
+        run.font.name = "宋体"
+        run.font.size = Pt(13)
+        run.element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
+
+    c = result["cash"]
+    cash_key_map = {79: "现金期末余额", 80: "现金期初余额",
+                    81: "现金等价物期末余额", 82: "现金等价物期初余额",
+                    83: "现金及现金等价物净增加额"}
+    cash_rows = [[t("行次"), t("项目"), t("本期金额"), t("上期金额")]]
+    for ln, name in CASH_ITEMS:
+        key = cash_key_map[ln]
+        cash_rows.append([ln, t(name), fmt(c.get(key, 0)), ""])
+    add_table(cash_rows, col_widths=[1.2, 9, 3, 3])
+
+    doc.add_paragraph("")
+
+    # ============ 负数调整说明 ============
+    if result["adjustments"]:
+        h4 = doc.add_heading(t("四、负数调整说明（编制说明第四条）"), level=1)
+        for run in h4.runs:
+            run.font.name = "宋体"
+            run.font.size = Pt(13)
+            run.element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
+        for a in result["adjustments"]:
+            p = doc.add_paragraph(a, style="List Bullet")
+            for run in p.runs:
+                run.font.name = "宋体"
+                run.font.size = Pt(10)
+                run.element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
+        doc.add_paragraph("")
+
+    # ============ 勾稽校验 ============
+    h5 = doc.add_heading(t("五、勾稽关系校验"), level=1)
+    for run in h5.runs:
+        run.font.name = "宋体"
+        run.font.size = Pt(13)
+        run.element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
+    for v in result["validations"]:
+        mark = "✓" if v["ok"] else "✗"
+        p = doc.add_paragraph(f"{mark} {v['name']}：{v['detail']}")
+        for run in p.runs:
+            run.font.name = "宋体"
+            run.font.size = Pt(10)
+            run.element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
+
+    doc.add_paragraph("")
+
+    # ============ 编制附注 ============
+    h6 = doc.add_heading(t("六、编制附注（主要计算过程）"), level=1)
+    for run in h6.runs:
+        run.font.name = "宋体"
+        run.font.size = Pt(13)
+        run.element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
+    for n in result["notes"]:
+        p = doc.add_paragraph(n, style="List Bullet")
+        for run in p.runs:
+            run.font.name = "宋体"
+            run.font.size = Pt(9.5)
+            run.element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
+
+    # 尾注
+    doc.add_paragraph("")
+    note_p = doc.add_paragraph()
+    note_p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    note_text = (t("说明：本表依据资产负债表与损益表编制，反映现金流量大致状况。")
+                 + t("表外数据中的税率、坏账计提比例等须按公司实际情况核实；")
+                 + t("涉及明细账簿的项目（如大额处置损益、非货币交易等）建议进一步核对。"))
+    nr = note_p.add_run(note_text)
+    nr.font.size = Pt(9)
+    nr.font.name = "宋体"
+    nr.font.italic = True
+    nr.element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
+
+    doc.save(out_path)
+
+
 # ---------------------------------------------------------------------------
 # 主流程
 # ---------------------------------------------------------------------------
@@ -1728,7 +1917,7 @@ def main():
     ap.add_argument("--bs-prior", help="上年资产负债表（用于上期金额）")
     ap.add_argument("--pl-prior", help="上年利润表")
     ap.add_argument("--out", default=".", help="输出目录")
-    ap.add_argument("--fmt", choices=["markdown", "excel", "json", "all"], default="all")
+    ap.add_argument("--fmt", choices=["markdown", "excel", "word", "json", "all"], default="all")
     ap.add_argument("--lang", choices=["zh", "en"], default="zh",
                     help="输出语言：zh（中文，默认）/ en（英文）")
     ap.add_argument("--json-params", help='覆盖参数 JSON，如 {"sale_vat_rate":0.13}')
@@ -1745,18 +1934,28 @@ def main():
     title = "现金流量表" if args.lang == "zh" else "Cash Flow Statement"
     base_name = "现金流量表" if args.lang == "zh" else "Cash_Flow_Statement"
     base = os.path.join(args.out, base_name)
+    generated = []
     if args.fmt in ("markdown", "all"):
         md = to_markdown(result, title=title, prior=prior, lang=args.lang)
         print(md)
         with open(base + ".md", "w", encoding="utf-8") as f:
             f.write(md)
+        generated.append(".md")
     if args.fmt in ("excel", "all"):
         to_excel(result, base + ".xlsx", title=title, lang=args.lang)
+        generated.append(".xlsx")
+    if args.fmt in ("word", "all"):
+        try:
+            to_word(result, base + ".docx", title=title, lang=args.lang)
+            generated.append(".docx")
+        except ImportError:
+            print("[提示] Word 输出需要 python-docx：pip install python-docx", file=sys.stderr)
     if args.fmt in ("json", "all"):
         with open(base + ".json", "w", encoding="utf-8") as f:
             json.dump({"result": result, "prior": prior}, f, ensure_ascii=False,
                       indent=2, default=str)
-    print(f"\n[输出] {base}.md / .xlsx / .json（已生成）", file=sys.stderr)
+        generated.append(".json")
+    print(f"\n[输出] {base}{' / '.join(generated)}（已生成）", file=sys.stderr)
 
 
 if __name__ == "__main__":

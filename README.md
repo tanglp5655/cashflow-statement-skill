@@ -72,7 +72,7 @@ python scripts/cash_flow_generator.py --bs bs.xlsx --pl pl.xlsx --extra extra.xl
 
 ```bash
 python scripts/cash_flow_generator.py --bs 报表.xlsx --out output --fmt all --lang en
-# 输出: Cash_Flow_Statement.md / .xlsx / .json
+# 输出: Cash_Flow_Statement.md / .xlsx / .docx / .json
 ```
 
 > 注意：英文模式仅翻译输出层文本，报表格式仍为中国《企业会计制度》口径，
@@ -84,7 +84,11 @@ python scripts/cash_flow_generator.py --bs 报表.xlsx --out output --fmt all --
 | --- | --- |
 | `现金流量表.md` | 规范主表（行次/本期/上期金额）+ 补充资料 + 现金及现金等价物 + 负数调整说明 + 勾稽校验 + 编制附注 |
 | `现金流量表.xlsx` | 分工作表：主表、补充资料、编制附注与校验 |
+| `现金流量表.docx` | **Word 年报格式**（适合银行/税务/老板，可直接打印） |
 | `现金流量表.json` | 结构化结果，便于程序化处理 |
+
+> `--fmt` 可选 `markdown` / `excel` / `word` / `json` / `all`（全部）。
+> Word 输出需 `pip install python-docx`。
 
 ## 核心口径（摘要，详见 `references/公式口径与编制说明.md`）
 
