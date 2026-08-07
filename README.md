@@ -6,7 +6,7 @@
 
 **作者**：四川金沐志德科技有限公司
 
-> 📖 **新手请先看 [使用手册](USER_GUIDE.md)**——含两种使用场景（AI 助手对话 / 命令行）、
+> 📖 **新手请先看 [使用手册](https://github.com/tanglp5655/cashflow-statement-skill/blob/main/USER_GUIDE.md)**——含两种使用场景（AI 助手对话 / 命令行）、
 > 数据准备指南、填表说明、常见问题 FAQ。
 
 ## 快速开始
