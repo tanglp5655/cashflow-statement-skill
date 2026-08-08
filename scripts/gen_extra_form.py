@@ -35,7 +35,9 @@ SECTION1 = [
     # 税费块
     ("DATA", "销项税额", "全年销项税额（不填则按收入×6%推算，请按实际税率改）", "选填", 0.06, "须根据实际税率修改"),
     ("DATA", "进项税额", "全年进项税额（不填则按成本×6%推算）", "选填", 0.00, "须根据实际税率修改"),
-    ("DATA", "应交增值税", "销项−进项（不填则由引擎自动按销项-进项算）", "选填", None, None),
+    # ===== 公式项1b：应交增值税 = 销项 - 进项（自动算）
+    ("FORMULA", "应交增值税", None, "自动算", None, None,
+     "=C{r2}-C{r1}", "(公式：销项税额-进项税额)"),
     ("DATA", "其他各项税", "除增值税外各税种（不填取利润表营业税金及附加）", "选填", None, None),
     ("DATA", "所得税", "全年所得税（不填取利润表所得税费用）", "选填", 0.25, "须根据实际税率修改"),
     ("DATA", "管理费用中列支的税金", "计入管理费用的税金（如房产税、印花税）", "选填", None, None),
@@ -106,9 +108,10 @@ NOTES = [
 def _resolve_formulas(rows):
     """把 FORMULA 行的 {r1}/{r2}/... 占位符解析成 __ROW_k__ 中间标记。
 
-    约定（直觉、易用）：{r1} = 紧邻 FORMULA 的上一个 DATA（最近的），
-                          {r2} = 倒数第二个 DATA，
-                          ...以此类推。
+    约定（直觉、易用）：{r1} = 紧邻 FORMULA 的上一行（最近的），
+                          {r2} = 倒数第二行，...以此类推。
+    注意：{rk} 引用的是"任意类型的行"（DATA + FORMULA），不是只引用 DATA。
+    这样链式公式可以引用前置的 FORMULA 行（如"实际应缴纳合计"引用"应交增值税"）。
     gen_xlsx 时再把 __ROW_k__ 替换成 r-k（r 是 FORMULA 所在行号）。
     """
     resolved = []
@@ -117,14 +120,13 @@ def _resolve_formulas(rows):
             resolved.append(row)
             continue
         _, name, _, req, _, _, formula_tpl, note = row
-        # 收集前面 DATA 行的个数
-        n_data = sum(1 for j in range(i) if rows[j][0] == "DATA")
+        # 收集前面所有行（DATA + FORMULA）的个数
+        n_above = i
         formula = formula_tpl
-        for k in range(1, n_data + 1):
+        for k in range(1, n_above + 1):
             placeholder = "{r" + str(k) + "}"
-            # {rk} → __ROW_k__（k=1 最近，k=2 次近，...）
             formula = formula.replace(placeholder, f"__ROW_{k}__")
-        resolved.append((row[0], name, None, req, None, None, formula, note, n_data))
+        resolved.append((row[0], name, None, req, None, None, formula, note, n_above))
     return resolved
 
 
@@ -225,13 +227,12 @@ def gen_xlsx(path):
                 cval.fill = must_fill
             r += 1
         else:  # FORMULA
-            _, name, _note_unused, req, _, _, formula_tpl, note, n_data_above = row_def
-            # 解析公式里的 __ROW_k__ 为绝对行号
+            _, name, _note_unused, req, _, _, formula_tpl, note, n_above = row_def
+            # 解析公式里的 __ROW_k__ 为绝对行号（引用 DATA 或 FORMULA 任意上方行）
             formula = formula_tpl
-            for k in range(1, n_data_above + 1):
-                abs_row = r - k  # 倒数第 k 个 DATA 行的绝对行号（r 是当前 FORMULA 行号）
+            for k in range(1, n_above + 1):
+                abs_row = r - k  # 倒数第 k 行的绝对行号
                 formula = formula.replace(f"__ROW_{k}__", str(abs_row))
-            # 序号列留空（公式行不计入序号）
             ws.cell(row=r, column=1).border = border
             ws.cell(row=r, column=1).fill = formula_fill
             cname = ws.cell(row=r, column=2, value=name)
@@ -243,7 +244,7 @@ def gen_xlsx(path):
             cval.alignment = Alignment(horizontal="right")
             cval.font = formula_font
             cval.fill = formula_fill
-            cval.number_format = "#,##0.00;-#,##0.00;-"  # 公式也用数字格式显示
+            cval.number_format = "#,##0.00;-#,##0.00;-"
             crate = ws.cell(row=r, column=4)
             crate.border = border
             crate.fill = formula_fill
