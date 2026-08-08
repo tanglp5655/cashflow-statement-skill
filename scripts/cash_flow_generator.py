@@ -298,11 +298,70 @@ BS_ALIAS = {
     "专项储备": "盈余公积",
     "代理买卖证券款": "其他应付款",
     "预付设备款": "预付款项",
+    # —— 小企业会计准则（财会[2011]17号）科目 ——
+    "应付利息": "预提费用",      # 小企业准则无"预提费用"行，利息计入应付利息 → 预提费用
+    "应付利润": "应付股利",      # 小企业准则用"应付利润"（无"应付股利"）
+    "利润分配": "未分配利润",    # 小企业准则资产负债表中可能用"利润分配"列示
+    "本年利润": "未分配利润",
+    "应收利息": "应收利息",
+    "应收股利": "应收股利",
+    "固定资产原价": "固定资产",
+    "减:累计折旧": "累计折旧",
+    # —— IFRS 国际准则（英文科目）——
+    "Cash and cash equivalents": "货币资金",
+    "Cash": "货币资金",
+    "Bank deposits": "货币资金",
+    "Financial assets at fair value through profit or loss": "短期投资",
+    "Trading securities": "短期投资",
+    "Notes receivable": "应收票据",
+    "Bills receivable": "应收票据",
+    "Accounts receivable": "应收账款",
+    "Trade receivables": "应收账款",
+    "Other receivables": "其他应收款",
+    "Prepayments": "预付款项",
+    "Prepaid expenses": "预付款项",
+    "Inventories": "存货",
+    "Long-term equity investments": "长期股权投资",
+    "Investments in associates": "长期股权投资",
+    "Property, plant and equipment": "固定资产",
+    "Fixed assets": "固定资产",
+    "Accumulated depreciation": "累计折旧",
+    "Construction in progress": "在建工程",
+    "Intangible assets": "无形资产",
+    "Long-term deferred expenses": "长期待摊费用",
+    "Deferred tax assets": "递延税款借项",
+    "Deferred tax liabilities": "递延税项贷项",
+    "Short-term borrowings": "短期借款",
+    "Short-term loans": "短期借款",
+    "Notes payable": "应付票据",
+    "Bills payable": "应付票据",
+    "Accounts payable": "应付账款",
+    "Trade payables": "应付账款",
+    "Contract liabilities": "预收款项",
+    "Advances from customers": "预收款项",
+    "Employee benefits payable": "应付职工薪酬",
+    "Salaries payable": "应付职工薪酬",
+    "Taxes payable": "应交税费",
+    "Other payables": "其他应付款",
+    "Dividends payable": "应付股利",
+    "Interest payable": "预提费用",
+    "Accrued expenses": "预提费用",
+    "Long-term borrowings": "长期借款",
+    "Long-term loans": "长期借款",
+    "Bonds payable": "应付债券",
+    "Share capital": "实收资本",
+    "Capital stock": "实收资本",
+    "Capital reserve": "资本公积",
+    "Surplus reserve": "盈余公积",
+    "Retained earnings": "未分配利润",
+    "Undistributed profits": "未分配利润",
 }
 
 # 多科目聚合组：用户把同一模板科目拆成多个明细科目列示时，取值需求和
 # （如房地产的开发成本+开发产品=存货；金融的拆入资金并入短期借款）
 BS_AGGREGATE = {
+    # 货币资金（小企业准则常拆库存现金/银行存款/其他货币资金列示）
+    "货币资金": ["库存现金", "现金", "银行存款", "其他货币资金", "银行结算户存款"],
     # 制造业/通用存货拆分（老准则分列或个别行业单列）
     "存货": ["原材料", "库存商品", "在产品", "自制半成品", "发出商品",
             "委托加工物资", "周转材料", "低值易耗品", "包装物", "高价周转件",
@@ -361,6 +420,35 @@ PL_ALIAS = {
     "资产处置收益": "营业外收入",     # 近似归类（处置利得非经营现金）
     "资产处置损失": "营业外支出",     # 处置损失非付现 → 间接法加回
     "公允价值变动收益": "投资收益",   # 未实现收益 → 间接法调减（模板投资损失=-投资收益）
+    # —— 小企业会计准则（财会[2011]17号）——
+    "主营业务收入": "营业收入",       # 若单列（未走聚合组），兜底映射
+    "其他业务收入": "营业收入",
+    "主营业务成本": "营业成本",
+    "其他业务成本": "营业成本",
+    # —— IFRS 国际准则（英文科目）——
+    "Revenue": "营业收入",
+    "Turnover": "营业收入",
+    "Sales revenue": "营业收入",
+    "Operating revenue": "营业收入",
+    "Cost of sales": "营业成本",
+    "Cost of goods sold": "营业成本",
+    "Operating costs": "营业成本",
+    "Selling expenses": "销售费用",
+    "Distribution expenses": "销售费用",
+    "Administrative expenses": "管理费用",
+    "Finance costs": "财务费用",
+    "Interest expense": "财务费用",
+    "Investment income": "投资收益",
+    "Income from associates": "投资收益",
+    "Other income": "营业外收入",
+    "Other expenses": "营业外支出",
+    "Other losses": "营业外支出",
+    "Income tax expense": "所得税费用",
+    "Profit before tax": "利润总额",
+    "Profit for the year": "净利润",
+    "Net profit": "净利润",
+    "Net income": "净利润",
+    "Profit attributable to owners of the parent": "净利润",
 }
 
 # 利润表多科目聚合组（用户分列明细时求和）
@@ -557,7 +645,8 @@ def extract_named_amounts(rows, name_col, amount_cols, sheet_hint=""):
         if name is None or str(name).strip() == "":
             continue
         sname = _norm(name)
-        if not re.search(r"[\u4e00-\u9fff]", sname):
+        # 只接受含中文或英文字母的科目名（IFRS 英文科目也纳入；纯数字/符号跳过）
+        if not re.search(r"[\u4e00-\u9fff]", sname) and not re.search(r"[A-Za-z]", sname):
             continue
         entry = {}
         for ci, label in amount_cols:
@@ -574,11 +663,14 @@ def find_bs(rows):
     """在资产负债表的行数据中定位科目/列。返回 (科目列列表, {列标签:列索引列表})。
     支持模板双栏结构：左侧资产 A=科目 B=行次 C=年初 D=期末；右侧负债 E=科目 F=行次 G=年初 H=期末。
     科目列 = "行次"列左边一列。
+    表头支持中文（年初数/期末数）与 IFRS 英文（Beginning/Ending）。
     """
     header_idx = None
     for i, row in enumerate(rows[:8]):
         joined = "|".join(str(c) if c is not None else "" for c in row[:9])
-        if "年初数" in joined and "期末数" in joined:
+        low = joined.lower()
+        if ("年初数" in joined and "期末数" in joined) or (
+                ("beginning" in low or "opening" in low) and ("ending" in low or "closing" in low)):
             header_idx = i
             break
     if header_idx is None:
@@ -587,7 +679,7 @@ def find_bs(rows):
     # 定位"行次"列
     line_cols = []
     for ci in range(len(hrow)):
-        if _norm(hrow[ci]) == "行次":
+        if "行次" in str(hrow[ci]):
             line_cols.append(ci)
     name_cols = []
     for lc in line_cols:
@@ -596,12 +688,16 @@ def find_bs(rows):
             if ci < len(hrow) and str(hrow[ci]).strip():
                 name_cols.append(ci)
                 break
-    # 金额列：每个"年初数"+"期末数"相邻对
+    # 金额列：每个"年初数"+"期末数"相邻对（支持中英文表头）
     labels = {"年初数": [], "期末数": []}
     for ci in range(len(hrow)):
-        lab = _norm(hrow[ci])
+        lab = _norm(str(hrow[ci])).lower() if hrow[ci] is not None else ""
         if lab in ("年初数", "期末数", "年初余额", "期末余额"):
-            labels[lab].append(ci)
+            labels["年初数" if lab in ("年初数", "年初余额") else "期末数"].append(ci)
+        elif lab in ("beginning", "beginningbalance", "openingbalance", "opening", "期初", "期初数"):
+            labels["年初数"].append(ci)
+        elif lab in ("ending", "endingbalance", "closingbalance", "closing", "期末", "期末余额"):
+            labels["期末数"].append(ci)
     # 若金额列有两个并列的"年初数"，分别属于左右两栏，按列序配对
     return list(dict.fromkeys(name_cols)) or [0], labels
 
@@ -641,7 +737,8 @@ def parse_income_statement(data):
         header_idx = None
         for i, row in enumerate(rows[:8]):
             joined = "|".join(str(c) if c is not None else "" for c in row[:5])
-            if "本年累计数" in joined or "本年" in joined:
+            low = joined.lower()
+            if "本年累计数" in joined or "本年" in joined or "currentyear" in low.replace(" ", "") or "currentperiod" in low.replace(" ", ""):
                 header_idx = i
                 break
         if header_idx is None:
@@ -649,9 +746,13 @@ def parse_income_statement(data):
         hrow = rows[header_idx]
         labels = {}
         for ci in range(len(hrow)):
-            lab = _norm(hrow[ci])
+            lab = _norm(str(hrow[ci])).lower() if hrow[ci] is not None else ""
             if lab in ("本年累计数", "上年同期数", "本年", "上年"):
                 labels[lab] = ci
+            elif lab in ("currentyear", "thisyear", "currentperiod", "本期", "本期数"):
+                labels["本年累计数"] = ci
+            elif lab in ("prioryear", "previousyear", "lastyear", "上期", "上年同期"):
+                labels["上年同期数"] = ci
         # 科目列 = "行次"列左边一列；若无"行次"，取第一个金额列左边最近文本列
         name_col = None
         for ci in range(len(hrow)):
