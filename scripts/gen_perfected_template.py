@@ -66,6 +66,7 @@ SECTION1 = [
 NOTES = [
     "★ = 必填项（系统不会自动推算，必须操作员手填）。⚡ = 自动算公式（粉红阴影，不要填）。其他 = 选填（留空时系统按说明自动推算）。",
     "★ 全年实发工资是唯一必填项；其余留空时系统自动按默认比例推算（详见每个项目的\"说明\"列）。",
+    "⚙ 参数覆盖子表：四金比例/福利费比例/销项税率/进项税率/坏账计提比例——按公司实际修改，留空用模板默认。",
     "★ 税率列默认值：销项 6% / 进项 0% / 所得税 25% / 坏账 0.5%，请按公司实际修改。",
     "★ 数据来源列（浅蓝）：建议每个数字注明出处（如\"管理费用明细-工资\"），便于审计追溯。",
     "★ 用引擎跑：python cash_flow_generator.py --bs 资产负债表 --pl 利润表 --extra 本表",
@@ -288,6 +289,69 @@ def build():
     cnote.font = Font(name="宋体", size=9, color="808080")
     cnote.fill = note_fill
     r += 1
+
+    # ---------- ⚙ 系统默认参数覆盖子表 ----------
+    r += 1
+    ws4.merge_cells(start_row=r, start_column=1, end_row=r, end_column=7)
+    title = ws4.cell(row=r, column=1, value="⚙ 系统默认参数覆盖（按公司实际修改，留空用默认）")
+    title.font = Font(name="宋体", size=11, bold=True, color="FFFFFF")
+    title.fill = PatternFill("solid", fgColor="4472C4")
+    title.alignment = Alignment(horizontal="center", vertical="center")
+    ws4.row_dimensions[r].height = 22
+    r += 1
+    hdr_param = ["", "参  数  名", "实际值(0~1)", "默认值", "参数说明", "数据来源(选填)", "说  明"]
+    for ci, h in enumerate(hdr_param, 1):
+        c = ws4.cell(row=r, column=ci, value=h)
+        c.font = head_font
+        c.fill = PatternFill("solid", fgColor="D9E1F2")
+        c.border = border
+        c.alignment = Alignment(horizontal="center", vertical="center")
+    r += 1
+    PARAMS = [
+        ("⚙ 四金比例", 0.266, "社保+公积金等占工资比。各地差异大：上海约34%/北京约40%/深圳约26%/最低基数10-15%",
+         "支付给职工的四金(留空时) = 工资 × 此比例"),
+        ("⚙ 福利费比例", 0.0106, "其他职工福利费占工资比（通常1-2%）",
+         "支付给职工的其他福利费(留空时) = 工资 × 此比例"),
+        ("⚙ 销项税率", 0.06, "增值税销项税率（一般纳税人6%/9%/13%按行业；小规模3%）",
+         "销项税额(留空时) = 营业收入 × 此税率"),
+        ("⚙ 进项税率", 0.06, "增值税进项税率（同销项税率原则）",
+         "进项税额(留空时) = 营业成本 × 此税率"),
+        ("⚙ 坏账计提比例", 0.005, "坏账计提占应收账款比例（一般企业0.5-1%）",
+         "此比例供填表参考；坏账实际计提额在主表「计提的坏账准备」行录入"),
+    ]
+    for i, (pname, default, range_note, detail) in enumerate(PARAMS, 1):
+        ws4.cell(row=r, column=1, value=i).border = border
+        ws4.cell(row=r, column=1).alignment = Alignment(horizontal="center")
+        cname = ws4.cell(row=r, column=2, value=pname)
+        cname.border = border
+        cname.font = Font(name="宋体", size=11, bold=True, color="0070C0")
+        cval = ws4.cell(row=r, column=3, value=default)
+        cval.number_format = "0.00%"
+        cval.border = border
+        cval.alignment = Alignment(horizontal="right")
+        cval.fill = PatternFill("solid", fgColor="FFF2CC")
+        cval.font = normal_font
+        cdef = ws4.cell(row=r, column=4, value=default)
+        cdef.number_format = "0.00%"
+        cdef.border = border
+        cdef.alignment = Alignment(horizontal="center")
+        cdef.font = Font(name="宋体", size=10, color="808080")
+        cdef.fill = note_fill
+        crate_note = ws4.cell(row=r, column=5, value=range_note)
+        crate_note.border = border
+        crate_note.font = Font(name="宋体", size=9, color="808080")
+        crate_note.fill = note_fill
+        crate_note.alignment = Alignment(wrap_text=True, vertical="center")
+        csrc = ws4.cell(row=r, column=6)
+        csrc.border = border
+        csrc.fill = source_fill
+        cnote = ws4.cell(row=r, column=7, value=detail)
+        cnote.border = border
+        cnote.font = Font(name="宋体", size=9, color="808080")
+        cnote.fill = note_fill
+        cnote.alignment = Alignment(wrap_text=True, vertical="center")
+        ws4.row_dimensions[r].height = 32
+        r += 1
 
     r += 1
     for note in NOTES:

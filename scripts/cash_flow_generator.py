@@ -778,7 +778,11 @@ def parse_income_statement(data):
 
 
 def parse_extra_data(data, bs=None, pl=None, params=None):
-    """解析表外数据 → {科目: 金额}，并补全模板中自动计算项。"""
+    """解析表外数据 → {科目: 金额}，并补全模板中自动计算项。
+
+    还支持"⚙ 系统默认参数覆盖"子表中的参数（如四金比例、销项税率），
+    让操作员在表里直接填实际比例覆盖默认（避免命令行 --json-params）。
+    """
     extra = {}
     if data is not None:
         for sheet_name, rows in data.items():
@@ -789,20 +793,39 @@ def parse_extra_data(data, bs=None, pl=None, params=None):
                 if name is None or str(name).strip() == "":
                     continue
                 sname = _norm(name)
-                if not re.search(r"[\u4e00-\u9fff]", sname):
+                if not re.search(r"[\u4e00-\u9fff]", sname) and not re.search(r"[A-Za-z]", sname):
                     continue
                 v = _cell_num(row[2]) if len(row) > 2 else None
                 if v is not None:
-                    extra[sname] = v
-    params = params or DEFAULT_PARAMS
-    # ---- 模板自动计算项 ----
-    # 支付给职工的四金 = 工资 × 26.6%（模板）
+                    # 规范化 key：去掉 ★ ⚡ 等状态标记前缀（操作员友好显示 vs 引擎内部名解耦）
+                    clean_key = sname.replace("★", "").replace("⚙", "").replace("⚡", "").strip()
+                    extra[clean_key] = v
+    params = dict(params or DEFAULT_PARAMS)
+    # ---- 提取参数覆盖（操作员在表里填实际比例，覆盖默认） ----
+    # 项目名前缀 "⚙ " 表示这是参数项；用别名映射到引擎内部参数名
+    PARAM_KEY_MAP = {
+        "四金比例": "four_gold_rate",
+        "福利费比例": "welfare_rate",
+        "销项税率": "extra_sale_tax_rate",
+        "进项税率": "extra_pur_tax_rate",
+        "坏账计提比例": "bad_debt_rate",
+        "坏账比例": "bad_debt_rate",          # 兼容口语化
+    }
+    for k, v in list(extra.items()):
+        # extra key 已经去掉了 ★ ⚙ ⚡ 前缀，直接匹配
+        if k in PARAM_KEY_MAP:
+            # 必须 0~1 之间，否则忽略（防止误填百分比）
+            if 0 < v <= 1:
+                params[PARAM_KEY_MAP[k]] = v
+            # 把参数项从 extra 里移除，避免被当成"金额"科目读
+            del extra[k]
+    # ---- 模板自动计算项（用最新 params） ----
     wage = extra.get("支付给职工的工资", 0) or 0
     if "支付给职工的四金" not in extra:
         extra["支付给职工的四金"] = round(wage * params["four_gold_rate"], 2)
     if "支付给职工的其他福利费" not in extra:
         extra["支付给职工的其他福利费"] = round(wage * params["welfare_rate"], 2)
-    # 销项税额 = 营业收入 × 销项税率（模板 D9，须按实际修改）
+    # 销项税额 = 营业收入 × 销项税率（须按实际修改）
     if bs is not None and pl is not None:
         revenue = pl.get("营业收入", {}).get("本年累计数", 0) or 0
         if "销项税额" not in extra and revenue:
