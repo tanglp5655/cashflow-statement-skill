@@ -99,6 +99,7 @@ NOTES = [
     "★ 金额单位：元。直接填数字，不要带千分位逗号。",
     "★ 粉红阴影 = 公式自动算，不要手填（手填会让 Excel 报错）。",
     "★ 税率列默认值与原模板一致（销项 6% / 进项 0% / 所得税 25% / 坏账 0.5%），请按公司实际修改。",
+    "★ 数据来源列（浅蓝）：建议每填一个数字就在这列注明出处（如'管理费用明细-工资'、'税务申报表-增值税'），便于审计追溯。",
     "★ 填完后保存，运行时作为 --extra 参数传入：python cash_flow_generator.py --bs 资产负债表 --pl 利润表 --extra 表外数据收集表.xlsx",
     "★ 补齐本表后，'经营活动产生的现金流量净额'精度可由 ±20% 提升至 ±5% 以内。",
     "★ 数据来源建议：工资表/社保申报表、增值税及所得税申报表、固定资产折旧明细表、银行对账单。",
@@ -151,28 +152,30 @@ def gen_xlsx(path):
     formula_fill = PatternFill("solid", fgColor="FFC7CE") # 公式自动算：粉红
     formula_font = Font(name="宋体", size=11, bold=True, color="9C0006")
     rate_fill = PatternFill("solid", fgColor="E2EFDA")     # 税率：浅绿
+    source_fill = PatternFill("solid", fgColor="DEEBF7")   # 数据来源（用户填）：浅蓝
     section_fill = PatternFill("solid", fgColor="305496") # 大区段标题：深蓝
     section_font = Font(name="宋体", size=12, bold=True, color="FFFFFF")
     hp_head_fill = PatternFill("solid", fgColor="C6EFCE") # 高精度区表头：浅绿
 
     # ---------- 顶部 ----------
-    ws.merge_cells("A1:F1")
+    ws.merge_cells("A1:G1")
     ws["A1"] = "表 外 数 据 收 集 表"
     ws["A1"].font = title_font
     ws["A1"].alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[1].height = 28
 
     # ---------- 顶部警告（醒目）----------
-    ws.merge_cells("A2:F2")
+    ws.merge_cells("A2:G2")
     ws["A2"] = ("⚠ 重要提醒：粉红阴影部分已设置为公式，数据自动计算产生，"
-                "务请不要填入任何数据以免出错！只需在「金额」栏白色空格内录入数据。")
+                "务请不要填入任何数据以免出错！只需在「金额」栏白色空格内录入数据。"
+                "建议在「数据来源」栏填写每个数字的出处（如'管理费用明细表-工资'），方便审计追溯。")
     ws["A2"].font = warn_font
     ws["A2"].fill = warn_fill
     ws["A2"].alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
-    ws.row_dimensions[2].height = 36
+    ws.row_dimensions[2].height = 48
 
     # ---------- 区段 1 标题 ----------
-    ws.merge_cells("A3:F3")
+    ws.merge_cells("A3:G3")
     ws["A3"] = "一、编制现金流量表所需数据录入"
     ws["A3"].font = section_font
     ws["A3"].fill = section_fill
@@ -180,7 +183,7 @@ def gen_xlsx(path):
     ws.row_dimensions[3].height = 22
 
     # ---------- 区段 1 表头 ----------
-    hdr1 = ["序号", "项  目", "金  额", "税  率", "税率说明", "说  明"]
+    hdr1 = ["序号", "项  目", "金  额", "税  率", "税率说明", "数据来源", "说  明"]
     for ci, h in enumerate(hdr1, 1):
         c = ws.cell(row=4, column=ci, value=h)
         c.font = head_font
@@ -218,20 +221,27 @@ def gen_xlsx(path):
             crate_note.border = border
             crate_note.font = Font(name="宋体", size=9, color="808080")
             crate_note.fill = note_fill
-            cnote = ws.cell(row=r, column=6, value=note)
+            # F 数据来源（用户填——空白单元格，浅蓝底鼓励填写）
+            csource = ws.cell(row=r, column=6)
+            csource.border = border
+            csource.fill = source_fill
+            csource.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
+            csource.font = Font(name="宋体", size=9, italic=True, color="666666")
+            # G 说明（引擎提示，灰色）
+            cnote = ws.cell(row=r, column=7, value=note)
             cnote.border = border
             cnote.font = Font(name="宋体", size=9, color="808080")
             cnote.fill = note_fill
+            cnote.alignment = Alignment(wrap_text=True, vertical="center")
             if req == "必填":
                 cname.fill = must_fill
                 cval.fill = must_fill
             r += 1
         else:  # FORMULA
             _, name, _note_unused, req, _, _, formula_tpl, note, n_above = row_def
-            # 解析公式里的 __ROW_k__ 为绝对行号（引用 DATA 或 FORMULA 任意上方行）
             formula = formula_tpl
             for k in range(1, n_above + 1):
-                abs_row = r - k  # 倒数第 k 行的绝对行号
+                abs_row = r - k
                 formula = formula.replace(f"__ROW_{k}__", str(abs_row))
             ws.cell(row=r, column=1).border = border
             ws.cell(row=r, column=1).fill = formula_fill
@@ -251,31 +261,35 @@ def gen_xlsx(path):
             crate_note = ws.cell(row=r, column=5)
             crate_note.border = border
             crate_note.fill = formula_fill
-            cnote = ws.cell(row=r, column=6, value=note)
+            csource = ws.cell(row=r, column=6)
+            csource.border = border
+            csource.fill = formula_fill
+            cnote = ws.cell(row=r, column=7, value=note)
             cnote.border = border
             cnote.font = Font(name="宋体", size=9, color="9C0006")
             cnote.fill = formula_fill
+            cnote.alignment = Alignment(wrap_text=True, vertical="center")
             r += 1
 
     # ---------- 区段 2 标题（高精度模式）----------
     r += 1
-    ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=6)
+    ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=7)
     hcell = ws.cell(row=r, column=1, value="二、【高精度模式·可选】从现金流量表主表直接抄真实值")
     hcell.font = section_font
-    hcell.fill = PatternFill("solid", fgColor="548235")  # 深绿
+    hcell.fill = PatternFill("solid", fgColor="548235")
     hcell.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[r].height = 22
     r += 1
 
     # ---------- 区段 2 表头 ----------
-    hdr2 = ["序号", "项  目", "金  额", "", "", "说  明"]
+    hdr2 = ["序号", "项  目", "金  额", "", "", "数据来源", "说  明"]
     for ci, h in enumerate(hdr2, 1):
         c = ws.cell(row=r, column=ci, value=h)
         c.font = head_font
         c.fill = hp_head_fill
         c.border = border
         c.alignment = Alignment(horizontal="center", vertical="center")
-    # 合并 D:E 列（高精度模式没税率）
+    # 合并 D:E（高精度模式没税率列）
     ws.merge_cells(start_row=r, start_column=4, end_row=r, end_column=5)
     r += 1
 
@@ -290,21 +304,28 @@ def gen_xlsx(path):
         cval.border = border
         cval.alignment = Alignment(horizontal="right")
         cval.font = normal_font
-        # D:E 合并
+        # D:E 合并留白（无税率）
         ws.merge_cells(start_row=r, start_column=4, end_row=r, end_column=5)
         merged = ws.cell(row=r, column=4)
         merged.border = border
         merged.fill = note_fill
-        cnote = ws.cell(row=r, column=6, value=note)
+        # F 数据来源（用户填）
+        csource = ws.cell(row=r, column=6)
+        csource.border = border
+        csource.fill = source_fill
+        csource.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
+        # G 说明
+        cnote = ws.cell(row=r, column=7, value=note)
         cnote.border = border
         cnote.font = Font(name="宋体", size=9, color="808080")
         cnote.fill = note_fill
+        cnote.alignment = Alignment(wrap_text=True, vertical="center")
         r += 1
 
     # ---------- 尾部说明 ----------
     r += 1
     for note in NOTES:
-        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=6)
+        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=7)
         cell = ws.cell(row=r, column=1, value="※ " + note)
         cell.font = Font(name="宋体", size=9, color="C00000")
         cell.alignment = Alignment(wrap_text=True, vertical="center")
@@ -313,11 +334,12 @@ def gen_xlsx(path):
 
     # ---------- 列宽 ----------
     ws.column_dimensions["A"].width = 6
-    ws.column_dimensions["B"].width = 34
+    ws.column_dimensions["B"].width = 32
     ws.column_dimensions["C"].width = 18
     ws.column_dimensions["D"].width = 10
     ws.column_dimensions["E"].width = 18
-    ws.column_dimensions["F"].width = 52
+    ws.column_dimensions["F"].width = 32   # 数据来源（用户填）
+    ws.column_dimensions["G"].width = 40   # 说明（引擎提示）
 
     wb.save(path)
     print("已生成:", path)
@@ -332,30 +354,30 @@ def gen_csv(path):
         w = csv.writer(f)
         # 警告 + 表头
         w.writerow(["⚠ 重要提醒：粉红阴影部分已设置为公式，数据自动计算产生，务请不要填入任何数据以免出错！"
-                    "只需在「金额」栏白色空格内录入数据。"])
+                    "只需在「金额」栏白色空格内录入数据。建议在「数据来源」栏填每个数字的出处。"])
         w.writerow([])
-        w.writerow(["一、编制现金流量表所需数据录入（公式项：合计 / 实际应缴纳各项税金合计 / "
+        w.writerow(["一、编制现金流量表所需数据录入（公式项：合计 / 应交增值税 / 实际应缴纳各项税金合计 / "
                     "分配股利、利润或偿付利息所支付的现金 = 自动算，请勿手填）"])
-        w.writerow(["序号", "项目", "金额", "税率(可选)", "说明"])
+        w.writerow(["序号", "项目", "金额", "税率(可选)", "税率说明", "数据来源(选填)", "说明"])
         seq = 0
         for row_def in SECTION1:
             if row_def[0] != "DATA":
                 # FORMULA 行：在 CSV 里写一行说明性记录（空值 + 说明）
                 _, name, _, req, _, _, _, note = row_def
                 seq += 1  # 也给个序号方便对照
-                w.writerow([seq, f"【公式自动算·勿填】{name}", "", "", note])
+                w.writerow([seq, f"【公式自动算·勿填】{name}", "", "", "", "", note])
                 continue
             _, name, note, req, rate, rate_note = row_def
             seq += 1
             rate_str = ""
             if rate is not None:
                 rate_str = f"{rate*100:.2f}%" + (f" ({rate_note})" if rate_note else "")
-            w.writerow([seq, name, "", rate_str, note])
+            w.writerow([seq, name, "", rate_str, rate_note or "", "", note])
         w.writerow([])
         w.writerow(["二、【高精度模式·可选】从现金流量表主表直接抄真实值"])
-        w.writerow(["序号", "项目", "金额"])
+        w.writerow(["序号", "项目", "金额", "数据来源(选填)", "说明"])
         for i, (name, note, _req) in enumerate(HIGH_PRECISION_ITEMS, 1):
-            w.writerow([i, name, note])
+            w.writerow([i, name, "", "", note])
         w.writerow([])
         for note in NOTES:
             w.writerow(["※ " + note])
